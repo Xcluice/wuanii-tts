@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "api/tts.py": { "maxDuration": 60, "includeFiles": "api/voices.npz" }
+  }
+}

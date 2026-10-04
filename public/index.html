@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wuanii Voice – Free Text to Speech</title>
+<meta name="theme-color" content="#1b1038">
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/icon-32.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="manifest" href="/manifest.json">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+:root{--bg:#1b1038;--card:#271650;--ink:#fff;--mut:#b9a9e8;--c1:#00e5ff;--c2:#ffeb3b;--c3:#ff4fa3;--c4:#b9ff50;--c5:#8b5cff;--c6:#ffa62b}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{background:radial-gradient(900px 500px at 10% -10%,#5b2bd9aa,transparent),radial-gradient(800px 500px at 100% 0,#ff4fa355,transparent),radial-gradient(700px 500px at 50% 110%,#00e5ff33,transparent),var(--bg);padding:max(14px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom))}
+.wrap{max-width:560px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;margin:6px 0 16px}
+header img{width:52px;height:52px;border-radius:14px;box-shadow:0 6px 20px #0006}
+h1{font-size:24px;margin:0;line-height:1.1;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{margin:2px 0 0;font-size:13px;color:var(--mut)}
+.card{background:linear-gradient(160deg,#2e1a5e,#231347);border:1px solid #ffffff1a;border-radius:20px;padding:14px;margin-bottom:14px;box-shadow:0 10px 30px #0005}
+label.t{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--c2);margin-bottom:8px}
+label.t span{color:var(--mut);font-weight:600;letter-spacing:0;text-transform:none}
+textarea{width:100%;min-height:150px;resize:vertical;background:#150b30;color:#fff;border:2px solid #ffffff22;border-radius:14px;padding:12px;font-size:16px;line-height:1.45;font-family:inherit;outline:none}
+textarea:focus{border-color:var(--c1)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid transparent;background:#150b30;color:#fff;border-radius:999px;padding:9px 13px;font-size:14px;font-weight:600;cursor:pointer;user-select:none;-webkit-user-select:none;transition:transform .12s,background .12s}
+.chip:active{transform:scale(.95)}
+.chip.on{color:#1b1038}
+#voices .chip:nth-child(5n+1).on{background:var(--c1)}#voices .chip:nth-child(5n+2).on{background:var(--c2)}#voices .chip:nth-child(5n+3).on{background:var(--c3)}#voices .chip:nth-child(5n+4).on{background:var(--c4)}#voices .chip:nth-child(5n+5).on{background:var(--c6)}
+#styles .chip:nth-child(1).on{background:var(--c1)}#styles .chip:nth-child(2).on{background:var(--c3)}#styles .chip:nth-child(3).on{background:var(--c5);color:#fff}
+.ex .chip{background:#3a2380;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--c3);height:28px}
+.go{width:100%;border:0;border-radius:16px;padding:16px;font-size:18px;font-weight:800;color:#1b1038;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));cursor:pointer;box-shadow:0 8px 24px #ff4fa355;transition:transform .12s}
+.go:active{transform:scale(.97)}
+.go:disabled{opacity:.7}
+#status{margin-top:12px;font-size:14px;color:var(--mut);min-height:20px}
+#status.err{color:#ff8a8a}
+.bars{display:none;gap:5px;height:34px;align-items:flex-end;margin:10px 0 0}
+.bars.on{display:flex}
+.bars i{width:8px;border-radius:4px;animation:b 0.9s ease-in-out infinite}
+.bars i:nth-child(5n+1){background:var(--c1)}.bars i:nth-child(5n+2){background:var(--c2)}.bars i:nth-child(5n+3){background:var(--c3)}.bars i:nth-child(5n+4){background:var(--c4)}.bars i:nth-child(5n+5){background:var(--c6)}
+@keyframes b{0%,100%{height:6px}50%{height:34px}}
+#out{display:none}#out.on{display:block}
+audio{width:100%;margin:6px 0 10px}
+.dl{display:block;text-align:center;text-decoration:none;border-radius:14px;padding:13px;font-weight:800;color:#fff;background:linear-gradient(90deg,var(--c5),var(--c3))}
+footer{text-align:center;color:var(--mut);font-size:12px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="/icon-192.png" alt="Wuanii Voice icon" width="52" height="52">
+    <div><h1>Wuanii Voice</h1><p>Free human-style voiceovers for your Shorts</p></div>
+  </header>
+
+  <div class="card">
+    <label class="t">Your script <span id="count">0 / 700</span></label>
+    <textarea id="text" maxlength="700" placeholder="Type your voiceover here...&#10;Use ! for hype, ... for drama."></textarea>
+    <div class="chips ex" style="margin-top:10px" id="examples"></div>
+  </div>
+
+  <div class="card">
+    <label class="t">Voice</label>
+    <div class="chips" id="voices"></div>
+  </div>
+
+  <div class="card">
+    <label class="t">Style</label>
+    <div class="chips" id="styles"></div>
+    <label class="t" style="margin-top:14px">Speed <span id="spv">1.00x</span></label>
+    <input type="range" id="speed" min="0.7" max="1.3" step="0.05" value="1">
+  </div>
+
+  <button class="go" id="go">Generate voice</button>
+  <div class="bars" id="bars"><i></i><i style="animation-delay:.1s"></i><i style="animation-delay:.2s"></i><i style="animation-delay:.3s"></i><i style="animation-delay:.4s"></i><i style="animation-delay:.15s"></i><i style="animation-delay:.25s"></i><i style="animation-delay:.05s"></i></div>
+  <div id="status"></div>
+
+  <div class="card" id="out">
+    <label class="t">Your voiceover</label>
+    <audio id="player" controls></audio>
+    <a class="dl" id="dl" download="wuanii-voice.wav">Download for CapCut</a>
+  </div>
+  <footer>Powered by Kokoro • Free • No sign-up</footer>
+</div>
+
+<script>
+const VOICES={am_puck:"Puck (playful)",am_fenrir:"Fenrir (deep)",am_adam:"Adam (calm)",am_michael:"Michael (clear)",am_echo:"Echo",am_liam:"Liam",am_onyx:"Onyx (bass)",am_eric:"Eric",bm_george:"George (UK)",bm_fable:"Fable (UK story)",bm_lewis:"Lewis (UK)",bm_daniel:"Daniel (UK)",af_bella:"Bella (female)",af_nicole:"Nicole (soft)",af_sky:"Sky (female)",af_nova:"Nova (female)",af_jessica:"Jessica (female)",bf_emma:"Emma (UK female)",bf_isabella:"Isabella (UK female)"};
+const STYLES={hype:"Hype",normal:"Normal",dramatic:"Dramatic"};
+const EXAMPLES={
+ "600 vs Bot":"Can a six hundred beat the easiest bot?! ... Let's find out!",
+ "Trap":"This seven move trap wins every time... on weak bots! Think it works on strong bots? Tomorrow's proof.",
+ "Level 3":"Level three is where it gets scary... I think I'm about to lose!"
+};
+let st={voice:"am_puck",style:"hype"};
+try{Object.assign(st,JSON.parse(localStorage.getItem("wv")||"{}"))}catch(e){}
+const $=id=>document.getElementById(id);
+function chips(el,map,key){
+  el.innerHTML="";
+  for(const k in map){
+    const b=document.createElement("div");b.className="chip"+(st[key]===k?" on":"");b.textContent=map[k];
+    b.onclick=()=>{st[key]=k;try{localStorage.setItem("wv",JSON.stringify(st))}catch(e){};chips(el,map,key)};
+    el.appendChild(b);
+  }
+}
+chips($("voices"),VOICES,"voice");chips($("styles"),STYLES,"style");
+for(const k in EXAMPLES){const b=document.createElement("div");b.className="chip";b.textContent=k;b.onclick=()=>{$("text").value=EXAMPLES[k];cnt()};$("examples").appendChild(b)}
+function cnt(){$("count").textContent=$("text").value.length+" / 700"}
+$("text").addEventListener("input",cnt);cnt();
+$("speed").addEventListener("input",()=>$("spv").textContent=Number($("speed").value).toFixed(2)+"x");
+let timer;
+$("go").onclick=async()=>{
+  const text=$("text").value.trim();
+  const s=$("status");s.className="";
+  if(!text){s.textContent="Type a script first.";s.className="err";return}
+  $("go").disabled=true;$("bars").classList.add("on");$("out").classList.remove("on");
+  let sec=0;s.textContent="Generating... 0s (first run can take up to a minute while the server wakes up)";
+  timer=setInterval(()=>{sec++;s.textContent="Generating... "+sec+"s"+(sec>8?" (server waking up, hang on)":"")},1000);
+  const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),90000);
+  try{
+    const r=await fetch("/api/tts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,voice:st.voice,style:st.style,speed:Number($("speed").value)}),signal:ctl.signal});
+    if(!r.ok){let m="Something went wrong.";try{m=(await r.json()).error||m}catch(e){}throw new Error(m)}
+    const blob=await r.blob();const url=URL.createObjectURL(blob);
+    $("player").src=url;$("dl").href=url;
+    $("out").classList.add("on");s.textContent="Done! Press play or download.";
+    $("player").play().catch(()=>{});
+  }catch(e){s.textContent=e.name==="AbortError"?"Took too long. Try again (the server should be awake now).":e.message;s.className="err"}
+  finally{clearInterval(timer);clearTimeout(to);$("go").disabled=false;$("bars").classList.remove("on")}
+};
+</script>
+</body>
+</html>
